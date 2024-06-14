@@ -12,4 +12,10 @@ class Comment extends Model
     protected $keyType = 'integer';
     public $incrementing = true;
     public $timestamps = true;
+
+    // Set default value by column
+    protected $attributes = [
+        'title' => 'Template Title',
+        'comment' => 'Template Comment',
+    ];
 }

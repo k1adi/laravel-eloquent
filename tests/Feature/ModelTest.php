@@ -107,4 +107,16 @@ class ModelTest extends TestCase
         $total = Category::where('desc', 'Updated')->count();
         $this->assertEquals(10, $total);
     }
+
+    public function testDelete()
+    {
+        $this->seed(CategorySeeder::class);
+
+        $category = Category::find('FASHION');
+        $result = $category->delete();
+        $this->assertTrue($result);
+
+        $total = Category::count();
+        $this->assertEquals(0, $total);
+    }
 }

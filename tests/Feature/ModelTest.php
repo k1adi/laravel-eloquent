@@ -20,4 +20,23 @@ class ModelTest extends TestCase
         $result = $category->save();
         $this->assertTrue($result);
     }
+
+    public function testInsertMany()
+    {
+        $categories = [];
+        for ($i = 0; $i < 10; $i++) {
+            $categories[] = [
+                'id' => "ID - $i",
+                'name' => "Name - $i"
+            ];
+        }
+
+        // $result = Category::query()->insert($categories);
+        $result = Category::insert($categories);
+        $this->assertTrue($result);
+
+        // $total = Category::query()->count()
+        $total = Category::count();
+        $this->assertEquals(10, $total);
+    }
 }

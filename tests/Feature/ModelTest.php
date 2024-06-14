@@ -86,4 +86,25 @@ class ModelTest extends TestCase
         $categories = Category::whereNull('desc')->get();
         $this->assertEquals(0, $categories->count());
     }
+
+    public function testUpdateMany()
+    {
+        $categories = [];
+        for ($i = 0; $i < 10; $i++) {
+            $categories[] = [
+                'id' => "ID - $i",
+                'name' => "Name - $i"
+            ];
+        }
+
+        $result = Category::insert($categories);
+        $this->assertTrue($result);
+
+        Category::whereNull('desc')->update([
+            'desc' => 'Updated'
+        ]);
+
+        $total = Category::where('desc', 'Updated')->count();
+        $this->assertEquals(10, $total);
+    }
 }

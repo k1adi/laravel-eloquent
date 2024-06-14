@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ModelTest extends TestCase
+class CategoryTest extends TestCase
 {
     public function testInsert()
     {

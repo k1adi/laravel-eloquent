@@ -64,4 +64,26 @@ class ModelTest extends TestCase
         $result = $category->update();
         $this->assertTrue($result);
     }
+
+    public function testSelect()
+    {
+        for($i=0; $i < 5; $i++){
+            $category = new Category();
+            $category->id = "ID - $i";
+            $category->name = "Name - $i";
+            $category->save();
+        }
+
+        // $categories = Category::query()->whereNull('desc')->get();
+        $categories = Category::whereNull('desc')->get();
+        $this->assertEquals(5, $categories->count());
+
+        $categories->each(function ($category) {
+            $category->desc = 'Updated';
+            $category->update();
+        });
+
+        $categories = Category::whereNull('desc')->get();
+        $this->assertEquals(0, $categories->count());
+    }
 }

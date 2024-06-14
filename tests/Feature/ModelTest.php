@@ -52,4 +52,16 @@ class ModelTest extends TestCase
         $this->assertEquals("Clothes", $category->name);    
         $this->assertEquals("Clothes Description", $category->desc);    
     }
+
+    public function testUpdate()
+    {
+        $this->seed(CategorySeeder::class);
+
+        $category = Category::find('FASHION');
+        $category->name = 'Pants';
+        $category->desc = 'Pant Description';
+
+        $result = $category->update();
+        $this->assertTrue($result);
+    }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Scopes\CategoryIsActiveScope;
 use Database\Seeders\CategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -182,5 +183,31 @@ class CategoryTest extends TestCase
         $category->save();
 
         $this->assertNotNull($category->id);
+    }
+
+    public function testGlobalScope()
+    {
+        $category = new Category();
+        $category->id = 'FOOD';
+        $category->name = 'Food';
+        $category->desc = 'Food Category';
+        $category->is_active = false;
+        $category->save();
+
+        $category = Category::find('FOOD');
+        $this->assertNull($category);
+    }
+
+    public function testWithoutGlobalScope()
+    {
+        $category = new Category();
+        $category->id = 'FOOD';
+        $category->name = 'Food';
+        $category->desc = 'Food Category';
+        $category->is_active = false;
+        $category->save();
+
+        $category = Category::withoutGlobalScopes([CategoryIsActiveScope::class])->find('FOOD');
+        $this->assertNotNull($category);
     }
 }

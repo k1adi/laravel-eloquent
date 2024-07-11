@@ -9,6 +9,7 @@ use Database\Seeders\CategorySeeder;
 use Database\Seeders\ProductSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class CategoryTest extends TestCase
@@ -250,5 +251,24 @@ class CategoryTest extends TestCase
         $outOfStock = $category->products()->where('stock', '<=', 0)->get();
         $this->assertNotNull($outOfStock);
         $this->assertEquals(1, $outOfStock->count());
+    }
+
+    public function testHasOneOfMany()
+    {
+        $this->seed([CategorySeeder::class, ProductSeeder::class]);
+
+        $category = Category::find('FOOD');
+
+        $cheapestProduct = $category->cheapestProduct;
+        $this->assertNotNull($cheapestProduct);
+        $this->assertEquals('1', $cheapestProduct->id);
+
+        $expensiveProduct = $category->expensiveProduct;
+        $this->assertNotNull($expensiveProduct);
+        $this->assertEquals('2', $expensiveProduct->id);
+        Log::info(json_encode([
+            'cheap' => $cheapestProduct,
+            'expensive' => $expensiveProduct
+        ]));
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Scopes\CategoryIsActiveScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Category extends Model
 {
@@ -27,8 +28,25 @@ class Category extends Model
         'id', 'name', 'desc'
     ];
 
+    // Return all products that relation with this category
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id', 'id');
+    }
+
+    // Return one of data that matching with custom criteria
+    public function cheapestProduct(): HasOne
+    {
+        // Get first index from row of data
+        // return $this->hasOne(Product::class, 'category_id', 'id')->orderBy('price', 'asc');
+        return $this->hasOne(Product::class, 'category_id', 'id')->oldest('price');
+    }
+
+    // Return one of data that matching with custom criteria
+    public function expensiveProduct(): HasOne
+    {
+        // Get last index from row of data
+        // return $this->hasOne(Product::class, 'category_id', 'id')->orderBy('price', 'desc');
+        return $this->hasOne(Product::class, 'category_id', 'id')->latest('price');
     }
 }

@@ -34,6 +34,8 @@ class Product extends Model
             'customers_like_products', // Relational table
             'product_id', // Primary key this table
             'customer_id' // Primary key another table
+        )->withPivot(
+            'created_at'
         );
     }
 }

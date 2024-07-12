@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Facades\Date;
 
 class Customer extends Model
 {
@@ -47,6 +49,20 @@ class Customer extends Model
             'customers_like_products', // Relational table
             'customer_id', // Primary key this table
             'product_id' // Primary key another table
+        )->withPivot(
+            'created_at'// Define another column except foreign key
         );
+    }
+
+    public function likeProductLastWeek(): BelongsToMany
+    {
+        // Define another table and relational table
+        return $this->belongsToMany(
+            Product::class, // Another table
+            'customers_like_products', // Relational table
+            'customer_id', // Primary key this table
+            'product_id' // Primary key another table
+        )->withPivot('created_at')
+        ->wherePivot('created_at', '>=', Date::now()->addDays(-7));
     }
 }

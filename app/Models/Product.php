@@ -36,6 +36,6 @@ class Product extends Model
             'customer_id' // Primary key another table
         )->withPivot(
             'created_at'
-        );
+        )->using(Like::class);
     }
 }

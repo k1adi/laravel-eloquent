@@ -51,7 +51,7 @@ class Customer extends Model
             'product_id' // Primary key another table
         )->withPivot(
             'created_at'// Define another column except foreign key
-        );
+        )->using(Like::class);
     }
 
     public function likeProductLastWeek(): BelongsToMany
@@ -63,6 +63,7 @@ class Customer extends Model
             'customer_id', // Primary key this table
             'product_id' // Primary key another table
         )->withPivot('created_at')
-        ->wherePivot('created_at', '>=', Date::now()->addDays(-7));
+        ->wherePivot('created_at', '>=', Date::now()->addDays(-7))
+        ->using(Like::class);
     }
 }

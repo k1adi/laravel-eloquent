@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Customer;
 use App\Models\Wallet;
+use Database\Seeders\CategorySeeder;
 use Database\Seeders\CustomerSeeder;
+use Database\Seeders\ProductSeeder;
 use Database\Seeders\VirtualAccountSeeder;
 use Database\Seeders\WalletSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class CustomerTest extends TestCase
@@ -55,5 +58,32 @@ class CustomerTest extends TestCase
         $vaAccount = $customer->virtualAccount;
         $this->assertNotNull($vaAccount);
         $this->assertEquals('BNI', $vaAccount->bank);
+    }
+
+    public function testInsertManyToMany()
+    {
+        $this->seed([CustomerSeeder::class, CategorySeeder::class, ProductSeeder::class]);
+
+        $customer = Customer::find('ADI');
+        $this->assertNotNull($customer);
+
+        $customer->likeProducts()->attach('1'); // attach product_id
+        $customer->likeProducts()->attach('2'); // attach product_id
+
+        $products = $customer->likeProducts;
+        Log::info($products);
+        $this->assertCount(2, $products);
+    }
+
+    public function testRemoveManyToMany()
+    {
+        $this->testInsertManyToMany();
+
+        $customer = Customer::find('ADI');
+        $customer->likeProducts()->detach('1');
+
+        $products = $customer->likeProducts;
+        $this->assertNotNull($products);
+        $this->assertCount(1, $products);
     }
 }

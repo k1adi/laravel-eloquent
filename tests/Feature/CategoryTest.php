@@ -3,9 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\Scopes\CategoryIsActiveScope;
 use Database\Seeders\CategorySeeder;
+use Database\Seeders\CustomerSeeder;
+use Database\Seeders\ProductSeeder;
+use Database\Seeders\ReviewSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class CategoryTest extends TestCase
@@ -182,5 +188,107 @@ class CategoryTest extends TestCase
         $category->save();
 
         $this->assertNotNull($category->id);
+    }
+
+    public function testGlobalScope()
+    {
+        $category = new Category();
+        $category->id = 'FOOD';
+        $category->name = 'Food';
+        $category->desc = 'Food Category';
+        $category->is_active = false;
+        $category->save();
+
+        $category = Category::find('FOOD');
+        $this->assertNull($category);
+    }
+
+    public function testWithoutGlobalScope()
+    {
+        $category = new Category();
+        $category->id = 'FOOD';
+        $category->name = 'Food';
+        $category->desc = 'Food Category';
+        $category->is_active = false;
+        $category->save();
+
+        $category = Category::withoutGlobalScopes([CategoryIsActiveScope::class])->find('FOOD');
+        $this->assertNotNull($category);
+    }
+    
+    public function testOneToMany()
+    {
+        $this->seed([CategorySeeder::class, ProductSeeder::class]);
+
+        $category = Category::find('FOOD');
+        $this->assertNotNull($category);
+
+        $products = $category->products;
+        $this->assertNotNull($products);
+        $this->assertCount(1, $products);
+    }
+
+    public function testOneToManyInsert(){
+        $category = new Category();
+        $category->id = 'FOOD';
+        $category->name = 'Food';
+        $category->desc = 'Food Desc';
+        $category->is_active = true;
+        $category->save();
+        $this->assertNotNull($category);
+
+        $product = new Product();
+        $product->id = 'SNACK';
+        $product->name = 'Snack';
+        $product->description = 'Snack Description';
+        $category->products()->save($product);
+        $this->assertNotNull($product);
+    }
+
+    public function testRelationSearch()
+    {
+        $this->testOneToManyInsert();
+
+        $category = Category::find('FOOD');
+        $outOfStock = $category->products()->where('stock', '<=', 0)->get();
+        $this->assertNotNull($outOfStock);
+        $this->assertEquals(1, $outOfStock->count());
+    }
+
+    public function testHasOneOfMany()
+    {
+        $this->seed([CategorySeeder::class, ProductSeeder::class]);
+
+        $category = Category::find('FOOD');
+
+        $cheapestProduct = $category->cheapestProduct;
+        $this->assertNotNull($cheapestProduct);
+        $this->assertEquals('1', $cheapestProduct->id);
+
+        $expensiveProduct = $category->expensiveProduct;
+        $this->assertNotNull($expensiveProduct);
+        $this->assertEquals('2', $expensiveProduct->id);
+        Log::info(json_encode([
+            'cheap' => $cheapestProduct,
+            'expensive' => $expensiveProduct
+        ]));
+    }
+
+    public function testHasManyThrough()
+    {
+        $this->seed([
+            CategorySeeder::class, 
+            ProductSeeder::class, 
+            CustomerSeeder::class, 
+            ReviewSeeder::class
+        ]);
+
+        $category = Category::find('FOOD');
+        $this->assertNotNull($category);
+
+        $reviews = $category->reviews;
+        Log::info($reviews);
+        $this->assertNotNull($reviews);
+        $this->assertEquals(2, $reviews->count());
     }
 }
